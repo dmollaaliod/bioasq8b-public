@@ -46,9 +46,9 @@ diego.molla-aliod@mq.edu.au. The following models are available:
 >>> import task8b
 Creating database of vectors word2vec_cnn_200.db
 Processing 2020822 words
->>> task8b.bioasq_baseline(test_data='BioASQ-task7bPhaseB-testset1.json')
+>>> task8b.bioasq_baseline(test_data='BioASQ-task8bPhaseB-testset1.json')
 Processing baseline
-Loading BioASQ-task7bPhaseB-testset1.json
+Loading BioASQ-task8bPhaseB-testset1.json
 Saving results in file bioasq-out-baseline.json
 ```
 
@@ -60,7 +60,7 @@ LSTM using embedding dimension=100
 Creating database of vectors word2vec_100.db
 Processing 2020822 words
 Basic summariser
->>> bioasq_run(test_data='BioASQ-task7bPhaseB-testset1.json', model_type='regression', output_filename='bioasq-out-nnr.json')
+>>> bioasq_run(test_data='BioASQ-task8bPhaseB-testset1.json', model_type='regression', output_filename='bioasq-out-nnr.json')
 Running bioASQ
 Reading data from BioASQ-training8b.json and rouge_8b.csv
 Loading BioASQ-training8b.json
@@ -72,14 +72,14 @@ Collecting data
 End collecting data
 Training BiLSTMSimMul(embed100)+pos-relu(50)
 Restoring Similarities model from ./task8b_nnr_model_1024
-... output deleted ...
+... output removed ...
 Model restored from file: ./task8b_nnr_model_1024
-51/51 [==============================] - 86s 2s/step - loss: 0.0359 - accuracy: 0.0424
-Loading BioASQ-task7bPhaseB-testset1.json
+51744/51744 [==============================] - 13s 246us/sample - loss: 0.0344 - accuracy: 0.0424
+Loading BioASQ-task8bPhaseB-testset1.json
 LOADED
-100% (100 of 100) |####################################| Elapsed Time: 0:05:05 Time:  0:05:05
+100% (100 of 100) |########################################| Elapsed Time: 0:04:15 Time:  0:04:15
 Saving results in file bioasq-out-nnr.json
->>> 
+>>>
 ```
 
 ### NN classification
@@ -89,7 +89,7 @@ Saving results in file bioasq-out-nnr.json
 LSTM using sentence length=300
 LSTM using embedding dimension=100
 Basic summariser
->>> bioasq_run(test_data='BioASQ-task7bPhaseB-testset1.json', model_type='classification', output_filename='bioasq-out-nnc.json')
+>>> bioasq_run(test_data='BioASQ-task8bPhaseB-testset1.json', model_type='classification', output_filename='bioasq-out-nnc.json')
 Running bioASQ
 Reading data from BioASQ-training8b.json and rouge_8b.csv
 Loading BioASQ-training8b.json
@@ -102,40 +102,42 @@ Collecting data
 End collecting data
 Training BiLSTMSimMul(embed100)+pos-relu(50)
 Restoring Similarities model from ./task8b_nnc_model_1024
-... output deleted ...
+... output removed ...
 Model restored from file: ./task8b_nnc_model_1024
-51/51 [==============================] - 86s 2s/step - loss: 0.5815 - accuracy: 0.7110
-Loading BioASQ-task7bPhaseB-testset1.json
+51744/51744 [==============================] - 7s 126us/sample - loss: 0.5912 - accuracy: 0.7152
+Loading BioASQ-task8bPhaseB-testset1.json
 LOADED
-100% (100 of 100) |##########################################| Elapsed Time: 0:05:14 Time:  0:05:14
-Saving results in file bioasq-out-nnc.json 
+100% (100 of 100) |#######################################| Elapsed Time: 0:04:10 Time:  0:04:10
+Saving results in file bioasq-out-nnc.json
 >>>
 ```
 
-###
+### BERT
 
 ```
 >>> from classificationneural import bioasq_run
 LSTM using sentence length=300
 LSTM using embedding dimension=100
 Basic summariser
->>> bioasq_run(test_data='BioASQ-task7bPhaseB-testset1.json', model_type='bert', output_filename='bioasq-out-bertsim.json')
-Running bioASQ
-Reading data from BioASQ-training8b.json and rouge_8b.csv
-Loading BioASQ-training8b.json
-Setting top 5 classification labels
-Gathering training data
-Collecting data
-End collecting data
-Training BERTMeanSimMul+pos-relu(50)
-Restoring  BERT Similarities model from ./task8b_bertsim_model_32
-All model checkpoint weights were used when initializing TFBertModel.
-
-All the weights of TFBertModel were initialized from the model checkpoint at bert-tfmodel-base-uncased.
-If your task is similar to the task the model of the ckeckpoint was trained on, you can already use TFBertModel for predictions without further training.
-
-
-
+>>> bioasq_run(test_data='BioASQ-task8bPhaseB-testset1.json', model_type='bert', output_filename='bioasq-out-bertsim.json')
+Running bioASQ                                                                                                                                                                                              
+Reading data from BioASQ-training8b.json and rouge_8b.csv                                                                                                                                                   
+Loading BioASQ-training8b.json                                                                                                                                                                              
+Setting top 5 classification labels                                                                                                                                                                         
+Gathering training data                                                                                                                                                                                     
+Collecting data                                                                                                                                                                                             
+End collecting data                                                                                                                                                                                         
+Training BERTMeanSimMul+pos-relu(50)                                                                                                                                                                        
+Restoring  BERT Similarities model from ./task8b_bertsim_model_32 
+... output removed ...
+Model restored from file: ./task8b_bertsim_model_32
+51744/51744 [==============================] - 682s 13ms/sample - loss: 0.5388 - accuracy: 0.7257
+Loading BioASQ-task8bPhaseB-testset1.json
+LOADED
+100% (100 of 100) |########################################| Elapsed Time: 0:02:00 Time:  0:02:00
+Saving results in file bioasq-out-bertsim.json
+>>> 
+```
 
 ## Examples of cross-validation runs and their results
 

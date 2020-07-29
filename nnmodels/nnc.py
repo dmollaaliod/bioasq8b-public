@@ -595,10 +595,12 @@ class SimilaritiesBERT(Similarities):
         self.siamese = siamese
 
     def load_tokenizer(self):
-        return BertTokenizer.from_pretrained('bert-tokenizer-base-uncased')
+#        return BertTokenizer.from_pretrained('bert-tokenizer-base-uncased')
+        return BertTokenizer.from_pretrained('bert-base-uncased')
 
     def load_bert_model(self):
-        return TFBertModel.from_pretrained('bert-tfmodel-base-uncased')
+#        return TFBertModel.from_pretrained('bert-tfmodel-base-uncased')
+        return TFBertModel.from_pretrained('bert-base-uncased')
 
     def name(self):
         if self.siamese:
