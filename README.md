@@ -5,7 +5,13 @@
 This code implements Macquarie University's experiments and
 participation in BioASQ 8b.
 * [BioASQ](http://www.bioasq.org)
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+
+There's also a docker container with this code and associated resources, ready to run in dockerhub:
+* https://hub.docker.com/repository/docker/dmollaaliod/bioasq8b
+
+If you are using this code, please cite the following publication:
+
+Diego Molla, Christopher Jones, Vincent Nguyen.  Query Focused Multi-document Summarisation of Biomedical Texts. *Working Notes of CLEF 2020 - Conference and Labs of the Evaluation Forum*. [[arxiv](https://arxiv.org/abs/2008.11986)] [[datapane](https://datapane.com/dmollaaliod/reports/BioASQ8b/)]
 
 ## How do I get set up? ###
 
@@ -28,10 +34,6 @@ Alternatively, ask diego.molla-aliod@mq.edu.au for a copy of the BioBERT model.
 
 Read the file `Dockerfile` for an idea of how to install the dependencies and
 set up the system.
-
-## Reading
-
-* BioASQ8b paper (TBA)
 
 ## Examples of runs using pre-learnt models
 
