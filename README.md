@@ -11,7 +11,7 @@ There's also a docker container with this code and associated resources, ready t
 
 If you are using this code, please cite the following publication:
 
-Diego Molla, Christopher Jones, Vincent Nguyen.  Query Focused Multi-document Summarisation of Biomedical Texts. *Working Notes of CLEF 2020 - Conference and Labs of the Evaluation Forum*. [[arxiv](https://arxiv.org/abs/2008.11986)] [[datapane](https://datapane.com/dmollaaliod/reports/BioASQ8b/)]
+* Diego Molla, Christopher Jones, Vincent Nguyen.  Query Focused Multi-document Summarisation of Biomedical Texts. *Working Notes of CLEF 2020 - Conference and Labs of the Evaluation Forum*. [[arxiv](https://arxiv.org/abs/2008.11986)] [[datapane](https://datapane.com/dmollaaliod/reports/BioASQ8b/)]
 
 ## How do I get set up? ###
 
