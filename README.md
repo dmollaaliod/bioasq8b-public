@@ -66,9 +66,6 @@ Basic summariser
 Running bioASQ
 Reading data from BioASQ-training8b.json and rouge_8b.csv
 Loading BioASQ-training8b.json
-Database word2vec_100.db opened
-Loading word embeddings
-Word embeddings loaded
 Gathering training data
 Collecting data
 End collecting data
@@ -76,7 +73,6 @@ Training BiLSTMSimMul(embed100)+pos-relu(50)
 Restoring Similarities model from ./task8b_nnr_model_1024
 ... output removed ...
 Model restored from file: ./task8b_nnr_model_1024
-51744/51744 [==============================] - 13s 246us/sample - loss: 0.0344 - accuracy: 0.0424
 Loading BioASQ-task8bPhaseB-testset1.json
 LOADED
 100% (100 of 100) |########################################| Elapsed Time: 0:04:15 Time:  0:04:15
@@ -96,9 +92,6 @@ Running bioASQ
 Reading data from BioASQ-training8b.json and rouge_8b.csv
 Loading BioASQ-training8b.json
 Setting top 5 classification labels
-Database word2vec_100.db opened
-Loading word embeddings
-Word embeddings loaded
 Gathering training data
 Collecting data
 End collecting data
@@ -106,7 +99,6 @@ Training BiLSTMSimMul(embed100)+pos-relu(50)
 Restoring Similarities model from ./task8b_nnc_model_1024
 ... output removed ...
 Model restored from file: ./task8b_nnc_model_1024
-51744/51744 [==============================] - 7s 126us/sample - loss: 0.5912 - accuracy: 0.7152
 Loading BioASQ-task8bPhaseB-testset1.json
 LOADED
 100% (100 of 100) |#######################################| Elapsed Time: 0:04:10 Time:  0:04:10
@@ -122,18 +114,17 @@ LSTM using sentence length=300
 LSTM using embedding dimension=100
 Basic summariser
 >>> bioasq_run(test_data='BioASQ-task8bPhaseB-testset1.json', model_type='bert', output_filename='bioasq-out-bertsim.json')
-Running bioASQ                                                                                                                                                                                              
-Reading data from BioASQ-training8b.json and rouge_8b.csv                                                                                                                                                   
-Loading BioASQ-training8b.json                                                                                                                                                                              
-Setting top 5 classification labels                                                                                                                                                                         
-Gathering training data                                                                                                                                                                                     
-Collecting data                                                                                                                                                                                             
-End collecting data                                                                                                                                                                                         
-Training BERTMeanSimMul+pos-relu(50)                                                                                                                                                                        
+Running bioASQ
+Reading data from BioASQ-training8b.json and rouge_8b.csv 
+Loading BioASQ-training8b.json            
+Setting top 5 classification labels 
+Gathering training data  
+Collecting data   
+End collecting data        
+Training BERTMeanSimMul+pos-relu(50)                            
 Restoring  BERT Similarities model from ./task8b_bertsim_model_32 
 ... output removed ...
 Model restored from file: ./task8b_bertsim_model_32
-51744/51744 [==============================] - 682s 13ms/sample - loss: 0.5388 - accuracy: 0.7257
 Loading BioASQ-task8bPhaseB-testset1.json
 LOADED
 100% (100 of 100) |########################################| Elapsed Time: 0:02:00 Time:  0:02:00

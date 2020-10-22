@@ -23,6 +23,6 @@ RUN python3 /root/code/dockersetup.py
 RUN mkdir /root/code/crossvalidation
 RUN mkdir /root/code/savedmodels
 
-RUN pip3 install -U rouge progressbar transformers
+RUN pip3 install -U rouge progressbar2 transformers
 
 WORKDIR /root/code

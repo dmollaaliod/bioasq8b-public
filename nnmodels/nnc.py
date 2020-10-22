@@ -164,7 +164,11 @@ def parallel_sentences_to_bert_ids(batch_snippets,
     "Convert the text to indices and pad-truncate to the maximum number of words"
     with Pool() as pool:
         return pool.map(partial(tokenizer.encode,
-                                add_special_tokens=True, max_length=sentence_length, pad_to_max_length=True),
+                                add_special_tokens=True, 
+                                max_length=sentence_length, 
+                                #pad_to_max_length=True,
+                                padding='max_length',
+                                truncation=True),
                          batch_snippets)
 
 def embeddings_one_sentence(row):
@@ -229,8 +233,8 @@ class BasicNN:
 
         return model
 
-    def restore(self, savepath):
-        model = self.__build_model__()
+    def restore(self, savepath, verbose=1):
+        model = self.__build_model__(verbose=verbose)
         model.load_weights(savepath)
         self.model=model
         print("Model restored from file: %s" % savepath)
@@ -380,8 +384,16 @@ class Similarities(BasicNN):
     def __init__(self, sentence_length=SENTENCE_LENGTH, batch_size=128, embeddings=True,
                  hidden_layer=0, build_model=False, comparison=compare.SimMul(), positions=False, 
                  regression=False, siamese=False):
-        BasicNN.__init__(self, sentence_length, batch_size, embeddings,
-                 hidden_layer, build_model)
+        if build_model:
+            BasicNN.__init__(self, sentence_length, batch_size, embeddings,
+                     hidden_layer, build_model)
+        else:
+            # Do not load embeddings if we do not need to build the model
+            BasicNN.__init__(self, sentence_length, batch_size, False,
+                     hidden_layer, build_model)
+            self.embeddings = embeddings
+
+        self.build_model = build_model
         self.comparison = comparison
         self.positions = positions
         self.regression_model = regression
@@ -415,14 +427,16 @@ class Similarities(BasicNN):
     def __build_model__(self,
             #embeddings_lambda=10,
                         learningrate=0.001, keep_prob=0.5, verbose=1):
-
         # Sentence
         X_input = keras.layers.Input(shape=(self.sentence_length,), name='X')
         if self.embeddings == None:
             embedding_s = keras.layers.Embedding(VOCABULARY, EMBEDDINGS)(X_input)
-        else:
+        elif self.build_model:
             embedding_s = keras.layers.Embedding(VOCABULARY, EMBEDDINGS,
                                                  weights=[np.array(self.embeddings)],
+                                                 trainable=False)(X_input)
+        else:
+            embedding_s = keras.layers.Embedding(VOCABULARY, EMBEDDINGS,
                                                  trainable=False)(X_input)
         embedding_reduction_layer = self.embedding_reduction(keep_prob)
         embedding_s_reduction = embedding_reduction_layer(embedding_s)
@@ -432,10 +446,14 @@ class Similarities(BasicNN):
         Q_input = keras.layers.Input(shape=(self.sentence_length,), name='Q')
         if self.embeddings == None:
             embedding_q = keras.layers.Embedding(VOCABULARY, EMBEDDINGS)(Q_input)
-        else:
+        elif self.build_model:
             embedding_q = keras.layers.Embedding(VOCABULARY, EMBEDDINGS,
                                                  weights=[np.array(self.embeddings)],
                                                  trainable=False)(Q_input)
+        else:
+            embedding_q = keras.layers.Embedding(VOCABULARY, EMBEDDINGS,
+                                                 trainable=False)(Q_input)
+
         if self.siamese:
             embedding_q_reduction = embedding_reduction_layer(embedding_q)
         else:
@@ -468,14 +486,16 @@ class Similarities(BasicNN):
     def top_layer(self, dropout_2, X_input, Q_input, positions, learningrate, verbose):
         # Final prediction
         if not(self.regression_model):
-            print("top_layer: classification model (sigmoid activation)")
+            if verbose:
+                print("top_layer: classification model (sigmoid activation)")
             output = keras.layers.Dense(1, activation=tf.nn.sigmoid)(dropout_2)
             model = keras.models.Model([X_input, Q_input] + positions, output)
             model.compile(optimizer=tf.optimizers.Adam(learningrate),
                           loss='binary_crossentropy',
                           metrics=['accuracy'])
         else:
-            print("top_layer: regression model (linear activation)")
+            if verbose:
+                print("top_layer: regression model (linear activation)")
             output = keras.layers.Dense(1, activation=None)(dropout_2)
             model = keras.models.Model([X_input, Q_input] + positions, output)
             model.compile(optimizer=tf.optimizers.Adam(learningrate),
@@ -497,8 +517,12 @@ class Similarities(BasicNN):
         if restore_model:
             print("Restoring Similarities model from %s" % savepath)
             #self.model.load_weights(savepath)
-            self.restore(savepath)
-            return self.test(X_train, Q_train, Y_train, X_positions=X_positions)
+            self.restore(savepath, verbose=verbose)
+            return
+            #if Y_train is None:
+            #    return
+            #else:
+            #    return self.test(X_train, Q_train, Y_train, X_positions=X_positions)
 
         assert(len(X_train) == len(Q_train))
         assert(len(X_train) == len(Y_train))
@@ -621,8 +645,8 @@ class SimilaritiesBERT(Similarities):
             str_hidden = "-relu(%i)" % self.hidden_layer
         return "BERT%s%sMean%s%s%s" % (str_siamese, str_trainable, self.comparison.name, str_positions, str_hidden)
 
-    def restore(self, savepath):
-        model, _X_bert_layer, _Q_bert_layer = self.__build_model__()
+    def restore(self, savepath, verbose=1):
+        model, _X_bert_layer, _Q_bert_layer = self.__build_model__(verbose=verbose)
         model.load_weights(savepath)
         self.model=model
         print("Model restored from file: %s" % savepath)
@@ -785,8 +809,9 @@ class SimilaritiesBERT(Similarities):
         if restore_model:
             print("Restoring  BERT Similarities model from %s" % savepath)
             #self.model.load_weights(savepath)
-            self.restore(savepath)
-            return self.test(X_train, Q_train, Y_train, X_positions=X_positions)
+            self.restore(savepath, verbose=verbose)
+            return
+            #return self.test(X_train, Q_train, Y_train, X_positions=X_positions)
 
         assert(len(X_train) == len(Q_train))
         assert(len(X_train) == len(Y_train))
@@ -969,12 +994,52 @@ class LSTMSimilaritiesBioBERT(SimilaritiesBioBERT):
         embedding_layer = keras.layers.Bidirectional(keras.layers.LSTM(768, dropout=1-keep_prob))(input_layer)
         return keras.models.Model(input_layer, embedding_layer)
 
-if __name__ == "__main__":
-    import doctest
-    import codecs
-    doctest.testmod()
+def summarise(question, candidates, nnc, n=3):
+    """A summariser as an illustration of how to use the classes defined in this file.
+    Returns the scores of each candidate sentence.
 
-    # sys.exit()
+    >>> nnc = LSTMSimilarities(hidden_layer=50, build_model=False, positions=True)
+    >>> nnc.fit(None, None, None, restore_model=True, verbose=0, savepath="task8b_nnc_model_1024")
+    Restoring Similarities model from task8b_nnc_model_1024
+    Model restored from file: task8b_nnc_model_1024
+    >>> question = "What is the best treatment for migraines?"
+    >>> text = [\
+        "Exome results are reported for two patients with connective tissue dysplasia, one refining a clinical diagnosis of Ehlers-Danlos to Marfan syndrome, the other suggesting arthrogryposis derived from maternofetal Stickler syndrome.",\
+        "Patient 1 had mutations in transthyretin (TTR), fibrillin (FBN1), and a calcium channel (CACNA1A) gene suggesting diagnoses of transthyretin amyloidosis, Marfan syndrome, and familial hemiplegic migraines, respectively.",\
+        "Patient 2 presented with arthrogryposis that was correlated with his mother's habitus and arthritis once COL2A1 mutations suggestive of Stickler syndrome were defined.",\
+        "Although DNA results often defy prediction by the best of clinicians, these patients illustrate needs for ongoing clinical scholarship (e.g., to delineate guidelines for management of mutations like that for hyperekplexia in Patient 2) and for interpretation of polygenic change that is optimized by clinical genetic/syndromology experience (e.g., suggesting acetazolamide therapy for Patient 1 and explaining arthrogryposis in Patient 2)."\
+        ]
+    >>> summarise(question, text, nnc)
+    [0.4873463, 0.44704044, 0.43069834, 0.43647176]
+    """
+    candidates_sentences = [nnc.cleantext(s) for s in candidates]
+    candidates_sentences_ids = list(range(len(candidates)))
+    predictions = [p[0] for p in nnc.predict(candidates_sentences,
+                                             [nnc.cleantext(question)]*len(candidates),
+                                             X_positions=candidates_sentences_ids)]
+    return predictions
+
+if __name__ == "__main__":
+    #import doctest
+    #import codecs
+    #doctest.testmod()
+
+    #sys.exit()
+
+    nnc = LSTMSimilarities(hidden_layer=50, build_model=False, positions=True)
+    nnc.fit(None, None, None, restore_model=True, verbose=0, savepath="task8b_nnc_model_1024")
+
+    question = "What is the best treatment for migraines?"
+    text = [
+        "Exome results are reported for two patients with connective tissue dysplasia, one refining a clinical diagnosis of Ehlers-Danlos to Marfan syndrome, the other suggesting arthrogryposis derived from maternofetal Stickler syndrome.",
+        "Patient 1 had mutations in transthyretin (TTR), fibrillin (FBN1), and a calcium channel (CACNA1A) gene suggesting diagnoses of transthyretin amyloidosis, Marfan syndrome, and familial hemiplegic migraines, respectively.",
+        "Patient 2 presented with arthrogryposis that was correlated with his mother's habitus and arthritis once COL2A1 mutations suggestive of Stickler syndrome were defined.",
+        "Although DNA results often defy prediction by the best of clinicians, these patients illustrate needs for ongoing clinical scholarship (e.g., to delineate guidelines for management of mutations like that for hyperekplexia in Patient 2) and for interpretation of polygenic change that is optimized by clinical genetic/syndromology experience (e.g., suggesting acetazolamide therapy for Patient 1 and explaining arthrogryposis in Patient 2)."
+        ]
+    scores = summarise(question, text, nnc)
+    print(scores)
+    
+    sys.exit()
 
     import csv
 
